@@ -8,7 +8,7 @@ router.post('/create-match',authenticateToken, createMatch);
 
 router.post('/play-round',authenticateToken, playRound);
 
-router.post('/match', authenticateToken, getMatchDetails);
+router.get('/match/:match_id', authenticateToken, getMatchDetails);
 
 
 module.exports = router;

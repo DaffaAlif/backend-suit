@@ -88,7 +88,7 @@ exports.playRound = async (req, res) => {
 };
 
 exports.getMatchDetails = async (req, res) => {
-  const { match_id } = req.body;
+  const { match_id } = req.params;
 
   try {
     // Fetch match and rounds
