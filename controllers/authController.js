@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Match = require("../models/Match");
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -81,14 +82,33 @@ exports.getCurrentUser = async (req, res) => {
 
     // Fetch the user from the database
     const user = await User.findById(userId).select("-password"); // Exclude password
+    const matches = await Match.find({
+      $or: [{ player_one_id: userId }, { player_two_id: userId }],
+    });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // Initialize statistics
+    const stats = { wins: 0, losses: 0, ties: 0 };
+
+    matches.forEach((match) => {
+      const { winner_id } = match;
+
+      if (winner_id == "tie") {
+        stats.ties += 1;
+      } else if (winner_id == userId) {
+        stats.wins += 1;
+      } else {
+        stats.losses += 1;
+      }
+    });
 
     res.status(200).json({
       message: "Current user fetched successfully",
       user,
+      stats,
+      matches,
     });
   } catch (error) {
     res.status(500).json({

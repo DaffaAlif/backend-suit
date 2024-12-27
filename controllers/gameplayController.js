@@ -75,6 +75,16 @@ exports.playRound = async (req, res) => {
       match.player_two_scores += 1;
     }
 
+    //Update match winner id
+    if (match.player_one_scores > match.player_two_scores) {
+      match.winner_id = match.player_one_id;
+    } else if (match.player_one_scores < match.player_two_scores) {
+      match.winner_id = match.player_two_id;
+    } else {
+      match.winner_id = "tie";
+    }
+
+   
     await match.save();
 
     res.status(201).json({
@@ -96,7 +106,7 @@ exports.getMatchDetails = async (req, res) => {
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
     }
-    const round = await Round.find({match_id})
+    const round = await Round.find({ match_id });
 
     res.status(200).json({ match, round });
   } catch (error) {
