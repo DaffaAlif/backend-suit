@@ -130,7 +130,7 @@ exports.getCurrentUser = async (req, res) => {
         stats.ties += 1;
       } else if (winner_id == userId) {
         stats.wins += 1;
-      } else {
+      } else if(winner_id !== null && winner_id !== userId) {
         stats.losses += 1;
       }
     });
