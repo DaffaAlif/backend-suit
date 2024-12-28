@@ -35,13 +35,11 @@ exports.playRound = async (req, res) => {
   const { match_id, player_one_move, player_two_move } = req.body;
 
   try {
-    // Fetch the match
     const match = await Match.findById(match_id);
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    // Determine the winner of the round
     const determineWinner = (move1, move2) => {
       if (move1 === move2) return "Tie"; // Tie
       if (
@@ -56,7 +54,6 @@ exports.playRound = async (req, res) => {
 
     const roundWinner = determineWinner(player_one_move, player_two_move);
 
-    // Create a new round
     const newRound = new Round({
       match_id,
       player_one_id: match.player_one_id,
@@ -67,14 +64,12 @@ exports.playRound = async (req, res) => {
     });
     await newRound.save();
 
-    // Update match scores
     if (roundWinner === match.player_one_id) {
       match.player_one_scores += 1;
     } else if (roundWinner === match.player_two_id) {
       match.player_two_scores += 1;
     }
 
-    // Update match winner id
     if (match.player_one_scores > match.player_two_scores) {
       match.winner_id = match.player_one_id;
     } else if (match.player_one_scores < match.player_two_scores) {
@@ -85,17 +80,52 @@ exports.playRound = async (req, res) => {
 
     await match.save();
 
-    // Fetch user data for the winner, if applicable
     let winnerData = null;
     if (roundWinner !== "Tie") {
       winnerData = await User.findById(roundWinner).select("username email avatar_id");
     }
 
-    // Include user data and match information in the response
     res.status(201).json({
       message: "Round played successfully",
       round: newRound,
       match,
+      winner: roundWinner === "Tie" ? "Tie" : winnerData,
+    });
+  } catch (error) {
+    console.error("Error playing round:", error);
+    res.status(500).json({ message: "Error playing round", error });
+  }
+};
+
+exports.playRoundPVP = async (req, res) => {
+  const { match_id, player_one_move, player_two_move } = req.body;
+
+  try {
+    const match = await Match.findById(match_id);
+    if (!match) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    const determineWinner = (move1, move2) => {
+      if (move1 === move2) return "Tie"; // Tie
+      if (
+        (move1 === "rock" && move2 === "scissors") ||
+        (move1 === "scissors" && move2 === "paper") ||
+        (move1 === "paper" && move2 === "rock")
+      ) {
+        return match.player_one_id;
+      }
+      return match.player_two_id;
+    };
+
+    const roundWinner = determineWinner(player_one_move, player_two_move);
+
+    let winnerData = null;
+    if (roundWinner !== "Tie") {
+      winnerData = await User.findById(roundWinner).select("username email avatar_id");
+    }
+    res.status(201).json({
+      message: "Round played successfully",
       winner: roundWinner === "Tie" ? "Tie" : winnerData,
     });
   } catch (error) {
