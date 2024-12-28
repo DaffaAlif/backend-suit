@@ -7,6 +7,7 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   avatar_id: { type: Number },
+  winstreak: { type: Number },
   created_at: { type: Date, default: Date.now },
 });
 
