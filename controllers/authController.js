@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
       password: hash,
       email,
       avatar_id: avatar_id || null,
-      winstreak: 0 || null,
+      winstreak: 0 
     });
 
     await user.save();
