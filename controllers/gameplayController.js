@@ -31,7 +31,6 @@ exports.createMatch = async (req, res) => {
   }
 };
 
-// Play a round
 exports.playRound = async (req, res) => {
   const { match_id, player_one_move, player_two_move } = req.body;
 
@@ -44,7 +43,7 @@ exports.playRound = async (req, res) => {
 
     // Determine the winner of the round
     const determineWinner = (move1, move2) => {
-      if (move1 === move2) return 'Tie'; // Tie
+      if (move1 === move2) return "Tie"; // Tie
       if (
         (move1 === "rock" && move2 === "scissors") ||
         (move1 === "scissors" && move2 === "paper") ||
@@ -64,7 +63,7 @@ exports.playRound = async (req, res) => {
       player_two_id: match.player_two_id,
       player_one_move,
       player_two_move,
-      round_winner_id: roundWinner,
+      round_winner_id: roundWinner === "Tie" ? null : roundWinner,
     });
     await newRound.save();
 
@@ -75,7 +74,7 @@ exports.playRound = async (req, res) => {
       match.player_two_scores += 1;
     }
 
-    //Update match winner id
+    // Update match winner id
     if (match.player_one_scores > match.player_two_scores) {
       match.winner_id = match.player_one_id;
     } else if (match.player_one_scores < match.player_two_scores) {
@@ -84,18 +83,28 @@ exports.playRound = async (req, res) => {
       match.winner_id = "tie";
     }
 
-   
     await match.save();
 
+    // Fetch user data for the winner, if applicable
+    let winnerData = null;
+    if (roundWinner !== "Tie") {
+      winnerData = await User.findById(roundWinner).select("username email avatar_id");
+    }
+
+    // Include user data and match information in the response
     res.status(201).json({
       message: "Round played successfully",
       round: newRound,
       match,
+      winner: roundWinner === "Tie" ? "Tie" : winnerData,
     });
   } catch (error) {
+    console.error("Error playing round:", error);
     res.status(500).json({ message: "Error playing round", error });
   }
 };
+
+
 
 exports.getMatchDetails = async (req, res) => {
   const { match_id } = req.params;

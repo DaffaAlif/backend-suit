@@ -20,7 +20,7 @@ const MatchSchema = new mongoose.Schema({
     default: 0,
   },
   winner_id: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "User",
     default: null,
   },
