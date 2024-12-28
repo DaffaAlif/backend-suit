@@ -74,9 +74,9 @@ exports.login = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { username, email, avatar_id } = req.body;
+    const { username, email, avatar_id, winstreak } = req.body;
 
-    if (!username && !email && !avatar_id) {
+    if (!username && !email && !avatar_id && !winstreak) {
       return res.status(400).json({
         error:
           "At least one field (username, email, avatar_id) must be provided.",
@@ -87,6 +87,7 @@ exports.updateUser = async (req, res) => {
     if (username) updates.username = username;
     if (email) updates.email = email;
     if (avatar_id) updates.avatar_id = avatar_id;
+    if (winstreak) updates.winstreak = winstreak;
 
     const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,
