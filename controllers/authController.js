@@ -74,6 +74,44 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.updateUser = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+    const { username, email, avatar_id } = req.body;
+
+    // Validate input
+    if (!username && !email && !avatar_id) {
+      return res.status(400).json({
+        error: "At least one field (username, email, avatar_id) must be provided.",
+      });
+    }
+
+    const updates = {};
+    if (username) updates.username = username;
+    if (email) updates.email = email;
+    if (avatar_id) updates.avatar_id = avatar_id;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      { new: true } 
+    ).select("-password"); 
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully.",
+      user,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+
 // Controller to get the current logged-in user
 exports.getCurrentUser = async (req, res) => {
   try {

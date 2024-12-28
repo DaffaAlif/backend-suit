@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, getCurrentUser } = require('../controllers/authController'); // Import controller functions
+const { register, login, getCurrentUser,updateUser } = require('../controllers/authController'); // Import controller functions
 const authenticateToken = require('../middleware/authenticateToken')
 
 
@@ -11,6 +11,7 @@ router.post('/register', register);
 // Login Route
 router.post('/login', login);
 
+router.get('/update-user', authenticateToken, updateUser);
 router.get('/current-user', authenticateToken, getCurrentUser);
 
 

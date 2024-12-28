@@ -44,7 +44,7 @@ exports.playRound = async (req, res) => {
 
     // Determine the winner of the round
     const determineWinner = (move1, move2) => {
-      if (move1 === move2) return null; // Tie
+      if (move1 === move2) return 'Tie'; // Tie
       if (
         (move1 === "rock" && move2 === "scissors") ||
         (move1 === "scissors" && move2 === "paper") ||
